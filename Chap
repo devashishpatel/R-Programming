@@ -1,0 +1,115 @@
+##############Chapter 2 - Data Structures############################
+#Vectors: One dimensional arrays that can hold numeric, character or logical data
+a <- c(1 , 2, 3, 5 , 6 , -1 , 0 , 2 , 9) #Numeric Data
+b <- c("Happy" , "Sad" , "Angry" , "Hungry")  #Character Data
+c <- c(TRUE , FALSE , TRUE , TRUE , FALSE)  #Logical Data
+
+#To refer to a Vector:
+a[9]
+a[5:8]
+a[c(1,2,8)]
+
+#Matrix: Two-dimensional array where each element has the same mode (numeric,character, or logical).
+#Matrix Format: 
+### myMatrix <- matrix(vector, nrow=number_of_rows, ncol=number_of_columns,
+###   byrow=logical_value, dimnames=list(
+###   char_vector_rownames, char_vector_colnames)) 
+rname <- c("R1" , "R2" , "R3" , "R4")
+cname <- c("C1" , "C2" , "C3" , "C4")
+myMatrix <- matrix(1:20 , nrow = 4 ,ncol = 4 , byrow = TRUE , dimnames = list(rname,cname))
+print(myMatrix)
+###To refer to a Matrix:
+myMatrix[2,]  #Refers to the second row
+myMatrix[,3]  #Refers to the third column
+myMatrix[2,3] 
+myMatrix[2,c(2,3)] #Refers to the 2nd and 3rd elements in row 2
+myMatrix[c(2,3) , 3] #Refers to the 2nd and 3rd elements in col 3
+
+#Array: Similar to Matrix, but with more than two dimensions
+### myArray <- array(vector , dimensions , dimnames=list(char_vector_dim1name, char_vector_dim2name, ..) )
+dim1 = c("A1" ,"A2")
+dim2 = c("B1" , "B2" , "B3")
+dim3 = c("C1" , "C2" , "C3" , "C4" )
+myArray <- array(1:20 , c(2,3,4) , dimnames = list(dim1 , dim2 , dim3 ))
+print(myArray)
+###To refer to an Array: All options same as matrices
+myArray[,2,]
+myArray[1,2,3]
+myArray[1,c(2,3),]
+
+#Data frames: More general than Matrix. Different columns can contain different modes of data (numeric, character , logical ,etc)
+### myData <- data.frame(col1 , name2=col2 , col3 , ...) where col1, col2, col3, … are column vectors of any type (such as character, numeric, or logical). Names for each column can be provided with the names function.
+patientId <- c(1 ,2 , 3 ,4)
+age <- c(25 , 34 , 28 , 54)
+diabetesType <- c("Type1" , "Type2" , "Type1" , "Type2")
+status <- c("Poor" , "Improved" , "Excellent" , "Poor")
+patientData <- data.frame(Id=patientId,age,Diabetes=diabetesType,status)
+print(patientData)
+## To refer to data in a data frame
+patientData[2,3]
+patientData[,4]
+patientData[1:2]
+patientData$age
+patientData[c("Diabetes","status")]
+table(patientData$diabetesType,patientData$age)
+str(patientData)
+summary(patientData)
+
+#List: An ordered collection of objects (components). It contains a combination of vectors, matrices, data frames, and even other lists.
+### myList <- list(name1 = object1, name2 = object2 , ...)
+g <- "My First List"
+h <- c(25, 26, 18, 39)
+j <- matrix(1:10, nrow=5)
+k <- c("one", "two", "three")
+mylist <- list(title=g, ages=h, j, k)
+print(mylist)
+## To refer to data in a list
+mylist[[2]]  #Prints the Second component referred to by component number
+mylist["ages"]  #Prints the second component referred to by component name
+mylist[c(2,3)] #Prints the second and third components
+mylist[[c(2,3)]]  #Prints the third element in the second component
+mylist[[c(3,3)]] #Prints the third element in the third component
+
+#Attach, Detach and With
+##Without attach, Detach and With..
+    summary(mtcars$mpg)
+    plot(mtcars$mpg,mtcars$disp)
+    plot(mtcars$mpg,mtcars$wt)
+#attach() function adds the data frame to the R search path. Thus we do not need to specify the data frame everytime we call a column
+    attach(mtcars)
+      summary(mpg)
+      plot(mpg,disp)  
+      plot(mpg,wt) 
+    detach()   #detach() function removes the dataframe from the R search path.
+#The limitations with this approach are evident when more than one object can have the same name. In that case R throws an error
+#Alternative approach is to use with()
+with(mtcars, {
+  summary(mpg,disp,wt)  #This is important to assign the variables that we are going to plot in coming lines
+  plot(mpg,disp) 
+  plot(mpg,wt)
+})
+#The limitation of with() is that the assignment exists only within the function brackets. 
+with(mtcars, {
+  a <- summary(mpg)
+  a                     #Here the variable a is assigned correctly
+}) 
+a                       #However, outside the variable a is not assigned and this throws error.
+#If you need to create objects that will exist outside of the with() construct, use the special assignment operator <<- instead of the standard one (<-). 
+#It will save the object to the global environment outside of the with() call.
+with(mtcars, {
+  stat <<- summary(mpg)                     #Here the variable a is assigned correctly
+}) 
+stat                       #However, outside the variable a is not assigned and this throws error.
+
+###########################Factors##############################
+# Categorical (nominal) and ordered categorical (ordinal) variables in R are called factors.
+#The function factor() stores the categorical values as a vector of integers in the range [1... k] (where k is the number of unique values in the nominal variable), and an internal vector of character strings (the original values) mapped to these integers.
+diabetes <- c("Type1", "Type2", "Type1", "Type1") #Defining a Vector
+diabetes <- factor(diabetes) #stores this vector as (1, 2, 1, 1) and associates it with 1=Type1 and 2=Type2 internally (the assignment is alphabetical).
+#For vectors representing ordinal variables, you add the parameter ordered=TRUE to the factor() function
+status <- c("Poor" , "Improved" , "Excellent" , "Poor")     #Defining the status vector 
+status <- factor(status, order=TRUE,                        #Encodes the vector as (3, 2, 1, 3) and associate these values internally as 1=Excellent, 2=Improved, and 3=Poor. By default, factor levels for character vectors are created in alphabetical order
+                 levels=c("Poor", "Improved", "Excellent")) #You can override the default by specifying a levels option.
+patientdata <- data.frame(age, diabetes, status)
+str(patientdata)                    #Check the variable types and associated levels for factors.It clearly shows that diabetes is a factor and status is an ordered factor, along with how it’s coded internally.
+summary(patientData)                #provides the minimum, maximum, mean, and quartiles for the continuous variable age, and frequency counts for the categorical variables diabetes and status.
